@@ -232,22 +232,23 @@ def send_email(to_addr, subject, body):
 def main():
   configure_cookie_handling()
 
-  for user, user_queries in config.query_sections.items():
-    notification = ''
+  while True:
+    for user, user_queries in config.query_sections.items():
+      notification = ''
+      for qs in user_queries:
+        # Sleep first so that e-mail notification won't be delayed if this is last series of checks for user.
+        time.sleep(config.seconds_between_checks)
+        results_page = determine_course_status(qs['subject_name'], qs['course_name'], qs['term'])
+        sections = parse_section_list(results_page)
+        notification += generate_notification(qs['subject_name'], qs['course_name'],
+          sections, qs['sections'])
 
-    for qs in user_queries:
-      results_page = determine_course_status(qs['subject_name'], qs['course_name'], qs['term'])
-      sections = parse_section_list(results_page)
-      notification += generate_notification(qs['subject_name'], qs['course_name'],
-        sections, qs['sections'])
+        open_section_count = len([section for section in sections if section['status'] == 'open'])
+        log('Queried %s %s for %s. %s/%s sections are open.' % (qs['subject_name'], qs['course_name'], user, open_section_count, len(sections)))
 
-      open_section_count = len([section for section in sections if section['status'] == 'open'])
-      log('Queried %s %s for %s. %s/%s sections are open.' % (qs['subject_name'], qs['course_name'], user, open_section_count, len(sections)))
-      time.sleep(config.seconds_between_checks)
-
-    notification = notification.strip()
-    if len(notification) > 0:
-      send_email(user, 'Open course notification', notification.strip())
+      notification = notification.strip()
+      if len(notification) > 0:
+        send_email(user, 'Open course notification', notification.strip())
 
 if __name__ == '__main__':
   main()
