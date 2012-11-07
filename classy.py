@@ -1,3 +1,4 @@
+#!/usr/bin/env python2
 import config
 import smtplib
 import time
