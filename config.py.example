@@ -1,0 +1,34 @@
+term = 2131 # Winter 2013
+
+query_sections = {
+  'user1@example.org': [
+    {
+      'subject_name': 'MATH',
+      'course_name': 211,
+      'sections': ['02-LEC', 'B15-LAB'],
+      'term': term,
+    }, {
+      'subject_name': 'MDSC',
+      'course_name': '408B',
+      'sections': 'all',
+      'term': term
+    }
+  ],
+
+  'user2@example.org': [
+    {
+      'subject_name': 'STAT',
+      'course_name': 327,
+      'sections': 'all',
+      'term': term
+    }
+  ]
+}
+
+seconds_between_checks = 5*60
+
+email_host = 'smtp.gmail.com'
+email_port = 587
+email_username = 'admin@example.org'
+email_password = 'password'
+email_from_addr = 'admin@example.org'
