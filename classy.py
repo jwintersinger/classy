@@ -7,6 +7,9 @@ import urllib2
 from bs4 import BeautifulSoup
 from datetime import datetime
 
+def log(msg):
+  print '[%s] %s' % (datetime.now(), msg)
+
 def parse(expr, contents):
   doc = BeautifulSoup(contents)
   return doc.select(expr)
@@ -224,7 +227,7 @@ def send_email(to_addr, subject, body):
   session.login(config.email_username, config.email_password)
   session.sendmail(config.email_from_addr, to_addr, header_text + 2*'\r\n' + body)
 
-  print '[%s] Sent "%s" to %s' % (datetime.now(), subject, to_addr)
+  log('Sent "%s" to %s' % (subject, to_addr))
 
 def main():
   configure_cookie_handling()
@@ -237,6 +240,9 @@ def main():
       sections = parse_section_list(results_page)
       notification += generate_notification(qs['subject_name'], qs['course_name'],
         sections, qs['sections'])
+
+      open_section_count = len([section for section in sections if section['status'] == 'open'])
+      log('Queried %s %s for %s. %s/%s sections are open.' % (qs['subject_name'], qs['course_name'], user, open_section_count, len(sections)))
       time.sleep(config.seconds_between_checks)
 
     notification = notification.strip()
