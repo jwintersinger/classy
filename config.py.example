@@ -25,6 +25,8 @@ query_sections = {
   ]
 }
 
+# Time between each individual query. Thus, if you have three queries, each
+# script iteration will take total_query_time + 3*seconds_between_checks.
 seconds_between_checks = 5*60
 
 email_host = 'smtp.gmail.com'
