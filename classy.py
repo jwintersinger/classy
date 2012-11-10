@@ -237,30 +237,40 @@ def send_email(to_addr, subject, body):
 
   log('Sent "%s" to %s.' % (subject, to_addr))
 
+def count_queries(query_sections):
+  query_count = 0
+  for query_section in query_sections.values():
+    query_count += len(query_section)
+  return query_count
+
 def main():
   configure_cookie_handling()
   first_iteration = True
+  query_sections = config.query_sections
 
-  while True:
-    for user, user_queries in config.query_sections.items():
+  while count_queries(query_sections) > 0:
+    for user, user_queries in query_sections.items():
       notification = ''
       open_classes = []
+      open_class_indices = []
 
-      for qs in user_queries:
+      for index in range(len(user_queries)):
         if first_iteration:
           first_iteration = False
         else:
           # Sleep first so that e-mail notification won't be delayed if this is last course user wants checked.
           time.sleep(config.seconds_between_checks)
 
-        subject = qs['subject_name']
-        course = qs['course_name']
-        results_page = determine_course_status(subject, course, qs['term'])
+        query = user_queries[index]
+        subject = query['subject_name']
+        course = query['course_name']
+        results_page = determine_course_status(subject, course, query['term'])
         sections = parse_section_list(results_page)
-        open_sections = find_open_sections(subject, course, sections, qs['sections'])
+        open_sections = find_open_sections(subject, course, sections, query['sections'])
 
         open_section_count = len(open_sections)
         if open_section_count > 0:
+          open_class_indices.append(index)
           notification += generate_notification(subject, course, open_sections)
           open_classes.append('%s %s' % (subject, course))
 
@@ -270,6 +280,14 @@ def main():
       if len(notification) > 0:
         subject = 'Open course notification: %s' % ', '.join(open_classes)
         send_email(user, subject, notification)
+
+      # Remove open classes so they're no longer queried. Iterate in reverse
+      # sorted order so that earlier-deleted indices do not change the entries
+      # referenced by later-deleted ones.
+      for open_index in reversed(sorted(open_class_indices)):
+        del user_queries[open_index]
+
+  print 'No remaining sections to query.'
 
 if __name__ == '__main__':
   main()
