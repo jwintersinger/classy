@@ -189,22 +189,27 @@ def parse_section_list(contents):
 
   return section_list
 
-def find_open_sections(subject_name, course_name, sections, query_sections):
-  # Note query_sections can be 'all'.
-  all_section_names = [section['name'] for section in sections]
-  if query_sections == 'all':
-    query_sections = all_section_names
+def resolve_section_names(desired_sections_names, all_sections):
+  if desired_sections_names == 'all':
+    all_section_names = [section['name'] for section in all_sections]
+    return all_section_names
+  else:
+    return desired_sections_names
 
-  invalid_sections = set(query_sections) - set(all_section_names)
-  if len(invalid_sections) > 0:
+def find_open_sections(subject_name, course_name, all_sections, query_sections_names):
+  all_sections_names = [section['name'] for section in all_sections]
+  invalid_sections_names = set(query_sections_names) - set(all_sections_names)
+
+  if len(invalid_sections_names) > 0:
     raise Exception('Invalid %s %s sections: %s' % (
       subject_name,
       course_name,
-      ', '.join(invalid_sections)
+      ', '.join(invalid_sections_names)
     ))
 
-  open_sections = [section for section in sections if
-    section['name'].upper() in query_sections and section['status'] == 'open']
+  open_sections = [section for section in all_sections if
+    section['name'] in query_sections_names and
+    section['status'] == 'open']
   return open_sections
 
 def generate_notification(subject_name, course_name, open_sections):
@@ -237,6 +242,10 @@ def send_email(to_addr, subject, body):
 
   log('Sent "%s" to %s.' % (subject, to_addr))
 
+# Note that this count won't be entirely accurate, as 'all' will resolve to one
+# query, rather than all sections composing that class. For the use of this
+# function, however, that's quite all right, as we only want to determine
+# whether the value is zero.
 def count_queries(query_sections):
   query_count = 0
   for query_section in query_sections.values():
@@ -246,13 +255,12 @@ def count_queries(query_sections):
 def main():
   configure_cookie_handling()
   first_iteration = True
-  query_sections = config.query_sections
 
-  while count_queries(query_sections) > 0:
-    for user, user_queries in query_sections.items():
+  while count_queries(config.query_sections) > 0:
+    for user, user_queries in config.query_sections.items():
       notification = ''
       open_classes = []
-      open_class_indices = []
+      open_class_indices = [] # Used to delete classes once found.
 
       for index in range(len(user_queries)):
         if first_iteration:
@@ -264,17 +272,26 @@ def main():
         query = user_queries[index]
         subject = query['subject_name']
         course = query['course_name']
-        results_page = determine_course_status(subject, course, query['term'])
-        sections = parse_section_list(results_page)
-        open_sections = find_open_sections(subject, course, sections, query['sections'])
+        desired_sections_names = query['sections']
 
-        open_section_count = len(open_sections)
-        if open_section_count > 0:
+        results_page = determine_course_status(subject, course, query['term'])
+        all_sections = parse_section_list(results_page)
+        query_sections_names = resolve_section_names(desired_sections_names, all_sections)
+        open_sections = find_open_sections(subject, course, all_sections, query_sections_names)
+
+        if len(open_sections) > 0:
           open_class_indices.append(index)
           notification += generate_notification(subject, course, open_sections)
           open_classes.append('%s %s' % (subject, course))
 
-        log('Queried %s %s for %s. %s/%s sections are open.' % (subject, course, user, open_section_count, len(sections)))
+        log('Queried %s %s for %s. %s/%s section(s) are open [%s total].' % (
+          subject,
+          course,
+          user,
+          len(open_sections),
+          len(query_sections_names),
+          len(all_sections),
+        ))
 
       notification = notification.strip()
       if len(notification) > 0:
@@ -284,7 +301,16 @@ def main():
       # Remove open classes so they're no longer queried. Iterate in reverse
       # sorted order so that earlier-deleted indices do not change the entries
       # referenced by later-deleted ones.
+      #
+      # Note that classes are removed wholesale if *any* of the user's desired
+      # sections are open. This means that none of the other sections of
+      # interest for that class will continue to be queried.
       for open_index in reversed(sorted(open_class_indices)):
+        log('Removing %s %s from %s\'s queries.' % (
+          user_queries[open_index]['subject_name'],
+          user_queries[open_index]['course_name'],
+          user
+        ))
         del user_queries[open_index]
 
   print 'No remaining sections to query.'
