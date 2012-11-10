@@ -31,4 +31,5 @@ email_host = 'smtp.gmail.com'
 email_port = 587
 email_username = 'admin@example.org'
 email_password = 'password'
+email_from_name = 'Classy'
 email_from_addr = 'admin@example.org'

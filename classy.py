@@ -109,9 +109,13 @@ def determine_course_status(subject_name, course_name, term):
   )
 
   # Fetch full set of search results.
+  # TODO: for classes where all results are on first page (i.e., those with <=
+  # 3 sections), do not perform this query, but instead simply use
+  # search_results_partial.
   pages['search_results_full'] = fetch_full_search_results(
     course_search_url, pages['search_results_partial']
   )
+
   return pages['search_results_full']
 
 def generate_search_elements(row):
@@ -212,7 +216,7 @@ def generate_notification(subject_name, course_name, sections, query_sections):
 
 def send_email(to_addr, subject, body):
   headers = {
-    'From': config.email_from_addr,
+    'From': '"%s" <%s>' % (config.email_from_name, config.email_from_addr),
     'To': to_addr,
     'Subject': subject,
   }
@@ -227,7 +231,7 @@ def send_email(to_addr, subject, body):
   session.login(config.email_username, config.email_password)
   session.sendmail(config.email_from_addr, to_addr, header_text + 2*'\r\n' + body)
 
-  log('Sent "%s" to %s' % (subject, to_addr))
+  log('Sent "%s" to %s.' % (subject, to_addr))
 
 def main():
   configure_cookie_handling()
