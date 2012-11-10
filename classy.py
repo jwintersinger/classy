@@ -262,14 +262,14 @@ def main():
       open_classes = []
       open_class_indices = [] # Used to delete classes once found.
 
-      for index in range(len(user_queries)):
+      for class_index in range(len(user_queries)):
         if first_iteration:
           first_iteration = False
         else:
           # Sleep first so that e-mail notification won't be delayed if this is last course user wants checked.
           time.sleep(config.seconds_between_checks)
 
-        query = user_queries[index]
+        query = user_queries[class_index]
         subject = query['subject_name']
         course = query['course_name']
         desired_sections_names = query['sections']
@@ -280,7 +280,7 @@ def main():
         open_sections = find_open_sections(subject, course, all_sections, query_sections_names)
 
         if len(open_sections) > 0:
-          open_class_indices.append(index)
+          open_class_indices.append(class_index)
           notification += generate_notification(subject, course, open_sections)
           open_classes.append('%s %s' % (subject, course))
 
