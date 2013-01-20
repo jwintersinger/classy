@@ -7,6 +7,8 @@ import urllib2
 from bs4 import BeautifulSoup
 from datetime import datetime
 
+last_page = ''
+
 def log(msg):
   print '[%s] %s' % (datetime.now(), msg)
 
@@ -22,6 +24,8 @@ def fetch(url, post_data=None):
   u = urllib2.urlopen(urllib2.Request(url, urllib.urlencode(post_data), headers))
   contents = u.read()
   u.close()
+
+  last_page = contents
   return contents
 
 def configure_cookie_handling():
@@ -316,4 +320,16 @@ def main():
   print 'No remaining sections to query.'
 
 if __name__ == '__main__':
-  main()
+  try:
+    main()
+  except Exception as e:
+    print ('Exception: %s' % e)
+    with open('log', 'w') as f:
+      f.write('Exception: %s\n' % e)
+      sep = 80*'=' + '\n'
+      f.write(sep)
+      f.write(last_page)
+      f.write(sep + 2*'\n')
+
+    time.sleep(600)
+    main()
