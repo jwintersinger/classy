@@ -20,7 +20,7 @@ def fetch(url, post_data=None):
   if post_data is None:
     post_data = {}
 
-  headers = {'User-Agent': 'A large hard-breathing middle-aged slow man'}
+  headers = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:21.0) Gecko/20100101 Firefox/21.0'}
   u = urllib2.urlopen(urllib2.Request(url, urllib.urlencode(post_data), headers))
   contents = u.read()
   u.close()
@@ -317,13 +317,13 @@ def main():
           user
         ))
 
-  print 'No remaining sections to query.'
+  print('No remaining sections to query.')
 
 if __name__ == '__main__':
   try:
     main()
   except Exception as e:
-    print ('Exception: %s' % e)
+    log('Exception: %s' % e)
     with open('log', 'w') as f:
       f.write('Exception: %s\n' % e)
       sep = 80*'=' + '\n'
@@ -331,5 +331,5 @@ if __name__ == '__main__':
       f.write(last_page)
       f.write(sep + 2*'\n')
 
-    time.sleep(600)
+    time.sleep(300)
     main()
