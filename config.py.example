@@ -1,4 +1,6 @@
-term = 2131 # Winter 2013
+terms = {
+  'F2013': 2137
+}
 
 query_sections = {
   'user1@example.org': [
@@ -6,13 +8,13 @@ query_sections = {
       'subject_name': 'MATH',
       'course_name': 211,
       'sections': ['02-LEC', 'B15-LAB'],
-      'term': term,
+      'term': terms['F2013'],
     }, {
       'subject_name': 'MDSC',
       'course_name': '408B',
       'sections': 'all',
-      'term': term
-    }
+      'term': terms['F2013'],
+    },
   ],
 
   'user2@example.org': [
@@ -20,14 +22,14 @@ query_sections = {
       'subject_name': 'STAT',
       'course_name': 327,
       'sections': 'all',
-      'term': term
-    }
-  ]
+      'term': terms['F2013'],
+    },
+  ],
 }
 
 # Time between each individual query. Thus, if you have three queries, each
 # script iteration will take total_query_time + 3*seconds_between_checks.
-seconds_between_checks = 5*60
+seconds_between_checks = 3*60
 
 email_host = 'smtp.gmail.com'
 email_port = 587
