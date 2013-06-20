@@ -323,12 +323,12 @@ def main():
       # sections are open. This means that none of the other sections of
       # interest for that class will continue to be queried.
       for open_index in reversed(sorted(open_class_indices)):
-        del user_queries[open_index]
-        log('Removed %s %s from %s\'s queries.' % (
+        log('Removing %s %s from %s\'s queries.' % (
           user_queries[open_index]['subject_name'],
           user_queries[open_index]['course_name'],
           user
         ))
+        del user_queries[open_index]
 
   print('No remaining sections to query.')
 
