@@ -1,16 +1,19 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 import config
 import smtplib
+import ssl
 import time
-import urllib
-import urllib2
+import urllib.error, urllib.parse, urllib.request
 from bs4 import BeautifulSoup
 from datetime import datetime
 
 last_page = ''
 
+class ClassyUrlOpener(urllib.request.FancyURLopener):
+  version = 'Mozilla/5.0 (X11; Linux x86_64; rv:21.0) Gecko/20100101 Firefox/21.0'
+
 def log(msg):
-  print '[%s] %s' % (datetime.now(), msg)
+  print('[%s] %s' % (datetime.now(), msg))
 
 def parse(expr, contents):
   doc = BeautifulSoup(contents)
@@ -20,17 +23,23 @@ def fetch(url, post_data=None):
   if post_data is None:
     post_data = {}
 
-  headers = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:21.0) Gecko/20100101 Firefox/21.0'}
-  u = urllib2.urlopen(urllib2.Request(url, urllib.urlencode(post_data), headers))
-  contents = u.read()
+  encoded_post = urllib.parse.urlencode(post_data).encode('ascii')
+  u = urllib.request.urlopen(url, encoded_post)
+  contents = u.read().decode('utf8')
   u.close()
 
   last_page = contents
+  with open('pages/%s' % datetime.now(), 'w') as f:
+    f.write(contents)
   return contents
 
 def configure_cookie_handling():
-  opener = urllib2.build_opener(urllib2.HTTPCookieProcessor())
-  urllib2.install_opener(opener)
+  ssl_context = ssl.SSLContext(ssl.PROTOCOL_SSLv3)
+  opener = urllib.request.build_opener(
+    urllib.request.HTTPCookieProcessor(),
+    urllib.request.HTTPSHandler(context=ssl_context)
+  )
+  urllib.request.install_opener(opener)
 
 def extract_hidden(contents):
   hidden_elems = parse('form[name=win0] input[type=hidden]', contents)
@@ -99,7 +108,7 @@ def determine_course_status(subject_name, course_name, term):
   # Fetch the page inside this iframe.
   pages['container'] = fetch('https://prdrps2.ehs.ucalgary.ca/psauthent/class-search/public')
   target_content = parse('[name=TargetContent]', pages['container'])[0]
-  search_form_url = urllib.unquote(target_content['src'])
+  search_form_url = urllib.parse.unquote(target_content['src'])
 
   # Fetch class search form.
   pages['course_search'] = fetch(search_form_url)
@@ -162,6 +171,10 @@ def generate_search_elements(row):
   return elements
 
 def parse_section_list(contents):
+  # Remove XML bullshit so BeautifulSoup can parse document. Hacky, but works.
+  doc_start = contents.find('<table')
+  contents = contents[doc_start:]
+
   doc = BeautifulSoup(contents)
   table_rows = doc.select('table[id=ACE_$ICField110$0] tr')
 
@@ -322,7 +335,7 @@ def main():
 if __name__ == '__main__':
   try:
     main()
-  except Exception as e:
+  except urllib.error.URLError as e:
     log('Exception: %s' % e)
     with open('log', 'w') as f:
       f.write('Exception: %s\n' % e)
