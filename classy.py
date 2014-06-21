@@ -57,15 +57,15 @@ def fetch_initial_search_results(
   params = dict(hidden)
   params.update({
     'ICAction': 'CLASS_SRCH_WRK2_SSR_PB_CLASS_SRCH',
-    'CLASS_SRCH_WRK2_INSTITUTION$49$': 'UCALG',
-    'CLASS_SRCH_WRK2_STRM$52$': term,
-    'CLASS_SRCH_WRK2_SUBJECT$65$': subject_name,
-    'CLASS_SRCH_WRK2_CATALOG_NBR$73$': course_name,
+    'CLASS_SRCH_WRK2_INSTITUTION$31$': 'UCALG',
+    'CLASS_SRCH_WRK2_STRM$35$': term,
+    'CLASS_SRCH_WRK2_SUBJECT$108$': subject_name,
+    'CLASS_SRCH_WRK2_CATALOG_NBR$8$': course_name,
     # Values: 'C'=contains, 'E'=exact match
     'CLASS_SRCH_WRK2_SSR_EXACT_MATCH1': 'E',
     'CLASS_SRCH_WRK2_ACAD_CAREER': '',
     'CLASS_SRCH_WRK2_SSR_OPEN_ONLY$chk': 'N',
-    'CLASS_SRCH_WRK2_OEE_IND$76$$chk': 'N',
+    'CLASS_SRCH_WRK2_OEE_IND$14$$chk': 'N',
   })
 
   return fetch(course_search_url, params)
@@ -75,8 +75,8 @@ def fetch_full_search_results(course_search_url, partial_search_results):
     'ICAJAX': '1',
     'ICType': 'Panel',
     'ICElementNum': '0',
-    'ICStateNum': '30',
-    'ICAction': '$ICField110$hviewall$0',
+    'ICStateNum': '57',
+    'ICAction': '$ICField106$hviewall$0',
     'ICXPos': '0',
     'ICYPos': '0',
     'ICFocus': '',
@@ -176,7 +176,7 @@ def parse_section_list(contents):
   contents = contents[doc_start:]
 
   doc = BeautifulSoup(contents)
-  table_rows = doc.select('table[id=ACE_$ICField110$0] tr')
+  table_rows = doc.select('table[id=ACE_$ICField106$0] tr')
 
   section_list = []
   for i in range(len(table_rows)):
