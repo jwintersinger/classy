@@ -1,5 +1,14 @@
+# To get these values, log into myUofC, then click green "Search for classes"
+# button at the topright. Failing that, go to the add/drop/swap section of
+# PeopleSoft, then click on the Search tab. (It's next to the Enroll and My
+# Academics tabs.)
+#
+# Alternatively, you can try incrementing past values. They're not perfectly
+# linear -- e.g., spring 2014 is 2143, while summer 2014 is 2145 -- but they're
+# close.
 terms = {
-  'F2013': 2137
+  'F2013': 2137,
+  'S2014': 2145,
 }
 
 query_sections = {
