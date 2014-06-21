@@ -2,6 +2,7 @@
 import config
 import smtplib
 import ssl
+import sys
 import time
 import urllib.error, urllib.parse, urllib.request
 from bs4 import BeautifulSoup
@@ -68,7 +69,12 @@ def fetch_initial_search_results(
     'CLASS_SRCH_WRK2_OEE_IND$14$$chk': 'N',
   })
 
-  return fetch(course_search_url, params)
+  resp = fetch(course_search_url, params)
+  f = open('blah', 'w')
+  f.write(resp)
+  f.close()
+  return resp
+
 
 def fetch_full_search_results(course_search_url, partial_search_results):
   params = {
@@ -128,6 +134,8 @@ def determine_course_status(subject_name, course_name, term):
   pages['search_results_full'] = fetch_full_search_results(
     course_search_url, pages['search_results_partial']
   )
+  with open('blah2', 'w') as f:
+    f.write(pages['search_results_full'])
 
   return pages['search_results_full']
 
@@ -293,6 +301,7 @@ def main():
 
         results_page = determine_course_status(subject, course, query['term'])
         all_sections = parse_section_list(results_page)
+        print(all_sections)
         query_sections_names = resolve_section_names(desired_sections_names, all_sections)
         open_sections = find_open_sections(subject, course, all_sections, query_sections_names)
 
@@ -331,18 +340,18 @@ def main():
         del user_queries[open_index]
 
   print('No remaining sections to query.')
+  sys.exit(0)
 
 if __name__ == '__main__':
-  try:
-    main()
-  except urllib.error.URLError as e:
-    log('Exception: %s' % e)
-    with open('log', 'w') as f:
-      f.write('Exception: %s\n' % e)
-      sep = 80*'=' + '\n'
-      f.write(sep)
-      f.write(last_page)
-      f.write(sep + 2*'\n')
-
-    time.sleep(300)
-    main()
+  while True:
+    try:
+      main()
+    except (urllib.error.URLError, ConnectionError) as e:
+      log('Exception: %s' % e)
+      with open('log', 'w') as f:
+        f.write('Exception: %s\n' % e)
+        sep = 80*'=' + '\n'
+        f.write(sep)
+        f.write(last_page)
+        f.write(sep + 2*'\n')
+      time.sleep(300)
