@@ -129,8 +129,6 @@ def determine_course_status(subject_name, course_name, term):
   pages['search_results_full'] = fetch_full_search_results(
     course_search_url, pages['search_results_partial']
   )
-  with open('blah2', 'w') as f:
-    f.write(pages['search_results_full'])
 
   return pages['search_results_full']
 
