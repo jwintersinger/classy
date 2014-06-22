@@ -30,8 +30,6 @@ def fetch(url, post_data=None):
   u.close()
 
   last_page = contents
-  with open('pages/%s' % datetime.now(), 'w') as f:
-    f.write(contents)
   return contents
 
 def configure_cookie_handling():
