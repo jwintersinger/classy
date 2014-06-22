@@ -230,9 +230,12 @@ def find_open_sections(subject_name, course_name, all_sections, query_sections_n
       ', '.join(invalid_sections_names)
     ))
 
+  # Note that it's not enough to merely check that a section's status is
+  # "open", as a section may be "open", "closed", or "wait list". We wish to
+  # notify whenever it's not closed.
   open_sections = [section for section in all_sections if
     section['name'] in query_sections_names and
-    section['status'] == 'open']
+    section['status'] != 'closed']
   return open_sections
 
 def generate_notification(subject_name, course_name, open_sections):
