@@ -299,7 +299,6 @@ def main():
 
         results_page = determine_course_status(subject, course, query['term'])
         all_sections = parse_section_list(results_page)
-        print(all_sections)
         query_sections_names = resolve_section_names(desired_sections_names, all_sections)
         open_sections = find_open_sections(subject, course, all_sections, query_sections_names)
 
