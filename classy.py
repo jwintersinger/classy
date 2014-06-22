@@ -68,9 +68,6 @@ def fetch_initial_search_results(
   })
 
   resp = fetch(course_search_url, params)
-  f = open('blah', 'w')
-  f.write(resp)
-  f.close()
   return resp
 
 
