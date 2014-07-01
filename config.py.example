@@ -12,8 +12,16 @@ terms = {
   'F2013': 2137,
   'S2014': 2145,
   'F2014': 2147,
+  'W2015', 2151,
 }
 
+# List of users and courses to check for each. The 'sections' value may be
+# 'all', indicating the user wants notifications for *any* open sessions, or it
+# may be a list of specific sections of interest.
+#
+# Note that if the multiple users specify the same course, it will be checked
+# separately for each. If Classy were used for many users, this should be fixed
+# such that it will perform only a single query in such a case.
 query_sections = {
   'user1@example.org': [
     {
@@ -43,6 +51,12 @@ query_sections = {
 # script iteration will take total_query_time + 3*seconds_between_checks.
 seconds_between_checks = 3*60
 
+# These values specify the account from which notification e-mails will be
+# sent. If you have a Gmail account, simply change username, password,
+# from_name, and from_addr. One can, of course, use any e-mail server that
+# supports SMTP, but depending on the server's configuration, you may have to
+# alter the send_email() function in classy.py (e.g., by removing the
+# starttls() call if your host doesn't use TLS).
 email_host = 'smtp.gmail.com'
 email_port = 587
 email_username = 'admin@example.org'
