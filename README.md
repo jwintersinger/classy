@@ -8,6 +8,11 @@ Classy][blog post].
 
 To use, do the following:
 
+    # Install Beautiful Soup dependency.
+      # If on Debian/Ubuntu:  apt-get install beautifulsoup4
+      # If on another distro: pip3 install beautifulsoup4
+        # Note you can instead run "pip3 install --user beautifulsoup4" if you don't want to install system-wide.
+
     cp config.py.example config.py
     # Now edit config.py as you please.
     ./classy.py
