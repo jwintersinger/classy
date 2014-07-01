@@ -22,6 +22,11 @@ terms = {
 # Note that if the multiple users specify the same course, it will be checked
 # separately for each. If Classy were used for many users, this should be fixed
 # such that it will perform only a single query in such a case.
+#
+# Additionally, if *any* sections are found open in a course, the course will
+# be removed from the list to check for that user, such that no other sections
+# will be checked until the script is restarted. This is a limitation I never
+# bothered to fix.
 query_sections = {
   'user1@example.org': [
     {
